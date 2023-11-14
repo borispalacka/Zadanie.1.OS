@@ -9,7 +9,8 @@ cat << THE_END
 <body>
 THE_END
 
-while read LINE
+ZOZ="no"
+while IFS= read LINE
 do
     if echo "$LINE" | grep '^## ' >> /dev/null
     then
@@ -36,6 +37,32 @@ do
     then
         LINE=$(echo "$LINE" | sed "s@_\([^_]\+\)_@<em>\1\</em>@g")
     fi
+    # Zadanie_skuska_OS_2023
+
+    if echo "$LINE" | grep '<https://[^/]\+>' >> /dev/null              # grep == 1 (nasiel)
+    then                                                                # grep == 0 (nenasiel)
+        LINE=$(echo "$LINE" | sed 's@<https://\([^/]\+\)>@<a href="https://\1\">https://\1\</a>@')
+    fi
+
+    if echo "$LINE" | grep ' - .\+' >> /dev/null
+    then
+        if [ "$ZOZ" == "no" ]
+        then
+            echo "<ol>"
+            ZOZ="yes"
+        fi
+        LINE=$(echo "$LINE" | sed 's@ - @<li>@')
+        LINE="$LINE</li>"
+        LINEBEFORE="$LINE"
+    else
+        if [ "$ZOZ" == "yes" ];
+        then
+            echo "</ol>"
+        fi
+        ZOZ="no"
+    fi
+
+
     echo "$LINE"
 
 done
